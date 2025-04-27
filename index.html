@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Planet Habitability Predictor</title>
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+</head>
+<body>
+  <h1>Planet Habitability Predictor</h1>
+
+  <p>Temperature: <input type="number" id="temp"></p>
+  <p>Pressure: <input type="number" id="pressure"></p>
+  <p>Oxygen: <input type="number" id="oxygen"></p>
+  <p>Water: <input type="number" id="water"></p>
+  <p>Gravity: <input type="number" id="gravity"></p>
+
+  <button onclick="predict()">Check Habitability</button>
+
+  <p id="result"></p>
+
+  <script>
+    async function predict() {
+      const input = [
+        parseFloat(document.getElementById("temp").value || "0"),
+        parseFloat(document.getElementById("pressure").value || "0"),
+        parseFloat(document.getElementById("oxygen").value || "0"),
+        parseFloat(document.getElementById("water").value || "0"),
+        parseFloat(document.getElementById("gravity").value || "0")
+      ];
+
+      const tensor = new ort.Tensor("float32", new Float32Array(input), [1, 5]);
+      const session = await ort.InferenceSession.create("planet_model.onnx");
+      const output = await session.run({ input: tensor });
+      const scores = output.output.data;
+      const prediction = scores.indexOf(Math.max(...scores));
+
+      const labels = ["Not Habitable", "Marginally Habitable", "Fully Habitable"];
+      document.getElementById("result").innerText = "Prediction
