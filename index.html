@@ -29,42 +29,42 @@
 
   <p id="result"></p>
 
-  <script>
-    let session;
-    
-    async function loadModel() {
-      session = await ort.InferenceSession.create("planet_model.onnx");
+<script>
+  let session;
 
-      const inputNames = session.inputNames;
-      console.log("Input names:", inputNames);
-    }
-    
-    async function predict() {
-      if (!session) {
-        document.getElementById("result").innerText = "Model not loaded yet.";
-        return;
-      }
-    
-      const input = [
-        parseFloat(document.getElementById("temp").value || "0"),
-        parseFloat(document.getElementById("pressure").value || "0"),
-        parseFloat(document.getElementById("oxygen").value || "0"),
-        parseFloat(document.getElementById("water").value || "0"),
-        parseFloat(document.getElementById("gravity").value || "0")
-      ];
-    
-      const tensor = new ort.Tensor("float32", new Float32Array(input), [1, 5]);
-      
-      const output = await session.run({ input: tensor });
-      const scores = output.output.data;
-      const prediction = scores.indexOf(Math.max(...scores));
-    
-      const labels = ["Not Habitable", "Marginally Habitable", "Fully Habitable"];
-      document.getElementById("result").innerText = "Prediction: " + labels[prediction];
-    }
-    
-    loadModel();
+  async function loadModel() {
+    session = await ort.InferenceSession.create("planet_model.onnx");
 
-  </script>
+    const inputNames = session.inputNames;
+    console.log("Input names:", inputNames);
+  }
+
+  async function predict() {
+    if (!session) {
+      document.getElementById("result").innerText = "Model not loaded yet.";
+      return;
+    }
+
+    const input = [
+      parseFloat(document.getElementById("temp").value || "0"),
+      parseFloat(document.getElementById("pressure").value || "0"),
+      parseFloat(document.getElementById("oxygen").value || "0"),
+      parseFloat(document.getElementById("water").value || "0"),
+      parseFloat(document.getElementById("gravity").value || "0")
+    ];
+
+    const tensor = new ort.Tensor("float32", new Float32Array(input), [1, 5]);
+
+    const output = await session.run({ input_0: tensor });
+    const scores = output.output.data;
+    const prediction = scores.indexOf(Math.max(...scores));
+
+    const labels = ["Not Habitable", "Marginally Habitable", "Fully Habitable"];
+    document.getElementById("result").innerText = "Prediction: " + labels[prediction];
+  }
+
+  loadModel();
+</script>
+
 </body>
 </html>
